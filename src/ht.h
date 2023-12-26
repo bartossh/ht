@@ -1,7 +1,7 @@
 #ifndef HT_H
 #define HT_H
 
-/// HT_hash hashes the nullable string.
+/// HT_HashDJB2 hashes the nullable string.
 /// It uses djb2 hashing algorithm 
 /// Written by Daniel J. Bernstein (also known as djb), 
 /// this simple hash function dates back to 1991.
@@ -15,6 +15,25 @@
 ///
 /// str - is a string to be hashed
 unsigned long
-HT_hash(unsigned char *str);
+HT_HashDJB2(unsigned char *str);
+
+
+/// HT_HashSDBM hashes the nullable string.
+/// It uses sdbm algorithm that was created for sdbm (a public-domain reimplementation of ndbm)
+/// database library. It was found to do well in scrambling bits.
+///
+/// str - is a string to be hashed
+unsigned long
+HT_HashSDBM(unsigned char *str);
+
+
+/// HT_HashLL hashes the nullable string.
+/// It uses loss loss algorithm.
+/// It is a terrible hashing algorithm, 
+/// and it could have been much better without sacrificing its "extreme simplicity."
+///
+/// str - is a string to be hashed
+unsigned long
+HT_HashLL(unsigned char *str);
 
 #endif
