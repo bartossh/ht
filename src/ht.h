@@ -3,10 +3,13 @@
 
 #include <stddef.h>
 
-const int HT_ErrCannotInsert = 1;
-const int HT_ErrCannotUpdate = 2;
-const int HT_ErrDoNotExists = 3;
-const int HT_ErrCannotDelete = 4;
+#define MinSize 10000
+
+#define HT_ErrCannotInsert 1;
+#define HT_ErrCannotRead 2;
+#define HT_ErrDoNotExists 3;
+#define HT_ErrCannotDelete 4;
+#define HT_ErrNotEmptyValue 5;
 
 typedef unsigned long (*HT_HashFunction)(char *);
 
@@ -108,6 +111,6 @@ int HT_delete(HT *ht, char *key, void **value);
 /// It is a caller responsibility to free underlining values.
 ///
 /// ht - pointer to the hash table.
-int HT_free(HT *ht);
+void HT_free(HT *ht);
 
 #endif
