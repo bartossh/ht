@@ -1,6 +1,16 @@
 #ifndef HT_H
 #define HT_H
 
+#include <stddef.h>
+
+#define MinSize 10000
+#define MaxSize 65535
+
+#define HT_ErrCannotInsert 1;
+#define HT_ErrDoNotExists 2;
+
+typedef unsigned long (*HT_HashFunction)(unsigned char *);
+
 /// HT_HashDJB2 hashes the nullable string.
 /// It uses djb2 hashing algorithm 
 /// Written by Daniel J. Bernstein (also known as djb), 
@@ -13,7 +23,7 @@
 /// multiplying the number by 32 (2^5) and + hash adds another value of hash, 
 /// turning this into multiplying by 33.
 ///
-/// str - is a string to be hashed
+/// str - is a string to be hashed.
 unsigned long
 HT_HashDJB2(unsigned char *str);
 
@@ -22,7 +32,7 @@ HT_HashDJB2(unsigned char *str);
 /// It uses sdbm algorithm that was created for sdbm (a public-domain reimplementation of ndbm)
 /// database library. It was found to do well in scrambling bits.
 ///
-/// str - is a string to be hashed
+/// str - is a string to be hashed.
 unsigned long
 HT_HashSDBM(unsigned char *str);
 
@@ -32,8 +42,70 @@ HT_HashSDBM(unsigned char *str);
 /// It is a terrible hashing algorithm, 
 /// and it could have been much better without sacrificing its "extreme simplicity."
 ///
-/// str - is a string to be hashed
+/// str - is a string to be hashed.
 unsigned long
 HT_HashLL(unsigned char *str);
+
+typedef struct entity {
+    unsigned char *key;
+    void *value;
+} Entity;
+
+typedef struct entities {
+    Entity **arr;
+    size_t len;
+    size_t cap;
+} Entities;
+
+/// HT is a hash table entity of key value pairs.
+/// Key in a char* nullable string.
+/// Value is a void pointer. 
+/// The caller responsibility is to manage memory allocated to store the value.
+typedef struct {
+    HT_HashFunction hash_function;
+    Entities **table;
+    size_t len;
+    size_t cap;
+} HT;
+
+/// HT_new creates a new has table of initial size.
+/// Returns pointer to underlining hash table.
+///
+/// cap - capacity of the hash table.
+/// f - hashing function pointer.
+HT HT_new(size_t cap, HT_HashFunction f);
+
+/// HT_insert inserts a value pointer with given key to the hash table.
+/// Value is updated if exists in the hash table.
+/// Returns 0 if insert succeeded or error value otherwise.
+///
+/// ht - pointer to the hash table.
+/// key - char* nullable string that represents the key.
+/// value - a void pointer to the underlining entity.
+int HT_insert(HT *ht, unsigned char *key, void *value);
+
+/// HT_read reads a value to a pointer with given key from the hash table if value exists.
+/// Returns pointer to the value or NULL otherwise;
+/// Caller responsibility is to properly cast the pointer to the expected type.
+/// Do not free the value memory until the entity is deleted from the hash table.
+///
+/// ht - pointer to the hash table.
+/// key - char* nullable string that represents the key.
+void *HT_read(HT *ht, unsigned char *key);
+
+
+/// HT_delete deletes a value from the hash table.
+/// Returns pointer to the value or NULL otherwise;
+/// Caller responsibility is to free the memory allocated for the value.
+///
+/// ht - pointer to the hash table.
+/// key - char* nullable string that represents the key.
+void *HT_delete(HT *ht, unsigned char *key);
+
+/// HT_free frees the memory allocated for the hash table.
+/// It is a caller responsibility to free underlining values.
+///
+/// ht - pointer to the hash table.
+void HT_free(HT ht);
 
 #endif

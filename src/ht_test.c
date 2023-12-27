@@ -117,10 +117,6 @@ static void test_hash_collisions_djb2_success(void)
 
     size_t multiplier = 10*1000; 
 
-    size_t m_size = sizeof(Occurance)*sa_v.len*multiplier;
-    size_t larger = m_size-sizeof(Occurance)*sa_v.len;
-    printf("Testing success agains dummy hast table of size %lu_MB that is %lu_MB larger then data set", m_size/(1000*1000), larger/(1000*1000));
-
     OccuranceArr_view oa_v = occurance_arr_new(sa_v.len*multiplier);
 
     for (size_t i = 0; i < sa_v.len; i++) {
@@ -143,10 +139,6 @@ static void test_hash_collisions_sdbm_success(void)
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     size_t multiplier = 10*1000; 
-
-    size_t m_size = sizeof(Occurance)*sa_v.len*multiplier;
-    size_t larger = m_size-sizeof(Occurance)*sa_v.len;
-    printf("Testing success agains dummy hast table of size %lu_MB that is %lu_MB larger then data set", m_size/(1000*1000), larger/(1000*1000));
 
     OccuranceArr_view oa_v = occurance_arr_new(sa_v.len*multiplier);
 
@@ -171,10 +163,6 @@ static void test_hash_collisions_ll(void)
 
     size_t multiplier = 10*1000; 
 
-    size_t m_size = sizeof(Occurance)*sa_v.len*multiplier;
-    size_t larger = m_size-sizeof(Occurance)*sa_v.len;
-    printf("Testing failure agains dummy hast table of size %lu_MB that is %lu_MB larger then data set", m_size/(1000*1000), larger/(1000*1000));
-
     OccuranceArr_view oa_v = occurance_arr_new(sa_v.len*multiplier);
 
     for (size_t i = 0; i < sa_v.len; i++) {
@@ -192,11 +180,10 @@ static void test_hash_collisions_ll(void)
     TEST_ASSERT_NOT_EQUAL(all, distinct);
 }
 
-static void test_hash_collisions_djb2_speed(void)
+static void bech_hash_collisions_djb2(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
-    printf("Testing hashing execution speed for [ %lu ] worlds running %zu times\n", sa_v.len, repetitons);
     
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -213,16 +200,15 @@ static void test_hash_collisions_djb2_speed(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashDJB2 callulating %zu hashes took %f_sec\n", counter, elapsed);
+    printf("HT_HashDJB2 callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
 }
 
-static void test_hash_collisions_sdbm_speed(void)
+static void bench_hash_collisions_sdbm(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
-    printf("Testing hashing execution speed for [ %lu ] worlds running %zu times\n", sa_v.len, repetitons);
     
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -239,16 +225,15 @@ static void test_hash_collisions_sdbm_speed(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashSDBM callulating %zu hashes took %f_sec\n", counter, elapsed);
+    printf("HT_HashSDBM callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
 }
 
-static void test_hash_collisions_ll_speed(void)
+static void bench_hash_collisions_ll(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
-    printf("Testing hashing execution speed for [ %lu ] worlds running %zu times\n", sa_v.len, repetitons);
     
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -265,9 +250,225 @@ static void test_hash_collisions_ll_speed(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashSDBM callulating %zu hashes took %f_sec\n", counter, elapsed);
+    printf("HT_HashSDBM callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
+}
+
+static void test_insert_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+
+    for (size_t i = 0; i < 3; i ++) {    
+        HT ht = HT_new(100*1000, hash_functions[i]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+
+        HT_free(ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr);
+    }
+}
+
+static void test_read_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+
+    for (size_t i = 0; i < 3; i ++) {    
+        HT ht = HT_new(100*1000, hash_functions[i]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+        
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *result = (size_t*)HT_read(&ht, (unsigned char*)sa_v.arr[i]);
+            TEST_ASSERT_NOT_EQUAL(NULL, result);
+            TEST_ASSERT_EQUAL(i, *result);
+        }
+
+        HT_free(ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr);
+    }
+}
+
+static void test_delete_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+
+    for (size_t i = 0; i < 3; i ++) {    
+        HT ht = HT_new(100*1000, hash_functions[i]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+        
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *result = (size_t*)HT_delete(&ht, (unsigned char*)sa_v.arr[i]);
+            TEST_ASSERT_NOT_EQUAL(NULL, result);
+            TEST_ASSERT_EQUAL(i, *result);
+        }
+        
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *result = (size_t*)HT_read(&ht, (unsigned char*)sa_v.arr[i]);
+            TEST_ASSERT_EQUAL(NULL, result);
+        }
+
+        HT_free(ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr);
+    }
+}
+
+static void bench_insert_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+    char names[3][10] = {"dbj2", "sbdm", "loss loss"};
+
+    for (size_t n = 0; n < 3; n++) {
+
+        HT ht = HT_new(100*1000, hash_functions[n]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        struct timeval begin, end;
+        gettimeofday(&begin, 0);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+        
+        gettimeofday(&end, 0);
+        long seconds = end.tv_sec - begin.tv_sec;
+        long microseconds = end.tv_usec - begin.tv_usec;
+        double elapsed = seconds + microseconds*1e-6;
+        printf("Inserting %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
+
+        HT_free(ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr);
+    }
+}
+
+static void bench_read_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+    char names[3][10] = {"dbj2", "sbdm", "loss loss"};
+
+    for (size_t n = 0; n < 3; n++) {
+        HT ht = HT_new(100*1000, hash_functions[n]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+
+        struct timeval begin, end;
+        gettimeofday(&begin, 0);
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *result = (size_t*)HT_read(&ht, (unsigned char*)sa_v.arr[i]);
+            TEST_ASSERT_NOT_EQUAL(NULL, result);
+            TEST_ASSERT_EQUAL(i, *result);
+        }
+        
+        gettimeofday(&end, 0);
+        long seconds = end.tv_sec - begin.tv_sec;
+        long microseconds = end.tv_usec - begin.tv_usec;
+        double elapsed = seconds + microseconds*1e-6;
+        printf("Reading %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
+
+        HT_free(ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr); 
+    }
+}
+
+static void bench_delete_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+    char names[3][10] = {"dbj2", "sbdm", "loss loss"};
+
+    for (size_t n = 0; n < 3; n++) {
+        HT ht = HT_new(100*1000, hash_functions[n]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+
+        struct timeval begin, end;
+        gettimeofday(&begin, 0);
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *result = (size_t*)HT_delete(&ht, (unsigned char*)sa_v.arr[i]);
+            TEST_ASSERT_NOT_EQUAL(NULL, result);
+            TEST_ASSERT_EQUAL(i, *result);
+        }
+        
+        gettimeofday(&end, 0);
+        long seconds = end.tv_sec - begin.tv_sec;
+        long microseconds = end.tv_usec - begin.tv_usec;
+        double elapsed = seconds + microseconds*1e-6;
+        printf("Deleting %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
+
+        HT_free(ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr);
+        
+    }
 }
 
 int main(void)
@@ -278,10 +479,17 @@ int main(void)
     RUN_TEST(test_hash_collisions_sdbm_success);
     RUN_TEST(test_hash_collisions_ll);
     
-    RUN_TEST(test_hash_collisions_djb2_speed);
-    RUN_TEST(test_hash_collisions_sdbm_speed);
-    RUN_TEST(test_hash_collisions_ll_speed);
+    RUN_TEST(bech_hash_collisions_djb2);
+    RUN_TEST(bench_hash_collisions_sdbm);
+    RUN_TEST(bench_hash_collisions_ll);
 
+    RUN_TEST(test_insert_all_hash_func);
+    RUN_TEST(test_read_all_hash_func);
+    RUN_TEST(test_delete_all_hash_func);
+    
+    RUN_TEST(bench_insert_all_hash_func);
+    RUN_TEST(bench_read_all_hash_func);
+    RUN_TEST(bench_delete_all_hash_func);
 
     return UnityEnd();
 }
