@@ -84,16 +84,16 @@ int main(void) {
 
 ## Benchmarks
 
-- HT_HashDJB2 callulating 48000000 hashes took [ 1.182072_sec ]
-- HT_HashSDBM callulating 48000000 hashes took [ 1.221105_sec ]
-- HT_HashSDBM callulating 48000000 hashes took [ 1.087453_sec ]
-- Inserting 4800 entities with hash function <dbj2> took [ 0.001356_sec ]
-- Inserting 4800 entities with hash function <sbdm> took [ 0.001400_sec ]
-- Inserting 4800 entities with hash function <loss loss> took [ 0.001657_sec ]
-- Reading 4800 entities with hash function <dbj2> took [ 0.000265_sec ]
-- Reading 4800 entities with hash function <sbdm> took [ 0.000283_sec ]
-- Reading 4800 entities with hash function <loss loss> took [ 0.000979_sec ]
-- Deleting 4800 entities with hash function <dbj2> took [ 0.000460_sec ]
-- Deleting 4800 entities with hash function <sbdm> took [ 0.000496_sec ]
-- Deleting 4800 entities with hash function <loss loss> took [ 0.000945_sec ]
+- HT_HashDJB2 callulating 48000000 hashes took 1.182072_sec.
+- HT_HashSDBM callulating 48000000 hashes took 1.221105_sec.
+- HT_HashSDBM callulating 48000000 hashes took 1.087453_sec.
+- Inserting 4800 entities with hash function dbj2 took 0.001356_sec.
+- Inserting 4800 entities with hash function sbdm took 0.001400_sec.
+- Inserting 4800 entities with hash function loss loss took 0.001657_sec.
+- Reading 4800 entities with hash function dbj2 took 0.000265_sec.
+- Reading 4800 entities with hash function sbdm took 0.000283_sec.
+- Reading 4800 entities with hash function loss loss took 0.000979_sec.
+- Deleting 4800 entities with hash function dbj2 took 0.000460_sec.
+- Deleting 4800 entities with hash function sbdm took 0.000496_sec.
+- Deleting 4800 entities with hash function loss loss took 0.000945_sec.
 
