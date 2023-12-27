@@ -15,15 +15,85 @@ To test with memcheck run `make memcheck`.
 
 ## Usage Examples
 
-:construction:
+Below example consists if five stages.
+
+- Creation of the hash table with function `HT HT_new(size_t cap, HT_HashFunction f);`.
+- Insertion to the hash table with function `int HT_insert(HT *ht, unsigned char *key, void *value);`.
+- Reading from the hash table with function `void *HT_read(HT *ht, unsigned char *key);`.
+- Deleting from the hash table with function `void *HT_delete(HT *ht, unsigned char *key);`.
+- Freeing the memory after hash table is not needed anymore with function `void HT_free(HT ht);`.
 
 
-### License
+```c
+#include <stddef.h>
+#include "./path_to_ht_root/src/ht.h"
 
-Copyright 2023 Bartossh (Bartosz Lenart)
+#define HashTableSize 10000
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+int main(void) {
+    // Create Hash Table example:
+    HT ht = HT_new(HashTableSize, HT_HashDJB2);
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+    char keys[3][4] = {"1234", "next", "last"};
+   
+    // Insertion example:
+    for (size_t i = 1; i < 3; i++) {
+        // Allocating int in the heap as a example of value stored as a pointer,
+        size_t *v = malloc(sizeof(size_t));
+        memcpy(v, &i, sizeof(size_t));
+        // till here.
+        
+        int result = HT_insert(&ht, (unsigned char*)keys[i], (void*)v);
+        if (result != 0) {
+            printf("insertion failed\n");
+            return result;
+        }
+    }
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    // Reading example:
+    for (size_t i = 1; i < 3; i++) { 
+        coid *value = HT_read(&ht, (unsigned char*)keys[i];
+        if (!value) {
+            printf("reading failed\n");
+            return 1;
+        }
+        size_t v = (size_t)(*value); // Caller responsibility is to properly cast variable.
+        printf("red value [ %lu ]\n", v);
+    }
+    
+    // Deleting example:
+    for (size_t i = 1; i < 3; i++) { 
+        coid *value = HT_delte(&ht, (unsigned char*)keys[i];
+        if (!value) {
+            printf("deleting failed\n");
+            return 1;
+        }
+        size_t v = (size_t)(*value); // Caller responsibility is to properly cast variable.
+        printf("deleted value [ %lu ]\n", v);
+        free(value); // Caller responsibility is to free value after deletion and usage.
+    }
+
+    // Free Memory used by a Hash Table example:
+    HT_free(ht); 
+
+    return 0;
+
+}
+```
+
+
+## Benchmarks
+
+- HT_HashDJB2 callulating 48000000 hashes took [ 1.182072_sec ]
+- HT_HashSDBM callulating 48000000 hashes took [ 1.221105_sec ]
+- HT_HashSDBM callulating 48000000 hashes took [ 1.087453_sec ]
+- Inserting 4800 entities with hash function <dbj2> took [ 0.001356_sec ]
+- Inserting 4800 entities with hash function <sbdm> took [ 0.001400_sec ]
+- Inserting 4800 entities with hash function <loss loss> took [ 0.001657_sec ]
+- Reading 4800 entities with hash function <dbj2> took [ 0.000265_sec ]
+- Reading 4800 entities with hash function <sbdm> took [ 0.000283_sec ]
+- Reading 4800 entities with hash function <loss loss> took [ 0.000979_sec ]
+- Deleting 4800 entities with hash function <dbj2> took [ 0.000460_sec ]
+- Deleting 4800 entities with hash function <sbdm> took [ 0.000496_sec ]
+- Deleting 4800 entities with hash function <loss loss> took [ 0.000945_sec ]
+
