@@ -260,8 +260,8 @@ static void test_insert_all_hash_func(void) {
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
 
-    for (size_t i = 0; i < 3; i ++) {    
-        HT ht = HT_new(100*1000, hash_functions[i]);
+    for (size_t n = 0; n < 3; n++) {    
+        HT ht = HT_new(100*1000, hash_functions[n]);
 
         size_t **arr = calloc(sa_v.len, sizeof(int*));
 
@@ -286,8 +286,8 @@ static void test_read_all_hash_func(void) {
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
 
-    for (size_t i = 0; i < 3; i ++) {    
-        HT ht = HT_new(100*1000, hash_functions[i]);
+    for (size_t n = 0; n < 3; n++) {    
+        HT ht = HT_new(100*1000, hash_functions[n]);
 
         size_t **arr = calloc(sa_v.len, sizeof(int*));
 
@@ -318,8 +318,8 @@ static void test_delete_all_hash_func(void) {
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
 
-    for (size_t i = 0; i < 3; i ++) {    
-        HT ht = HT_new(100*1000, hash_functions[i]);
+    for (size_t n = 0; n < 3; n++) {    
+        HT ht = HT_new(100*1000, hash_functions[n]);
 
         size_t **arr = calloc(sa_v.len, sizeof(int*));
 
