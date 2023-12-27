@@ -117,10 +117,6 @@ static void test_hash_collisions_djb2_success(void)
 
     size_t multiplier = 10*1000; 
 
-    size_t m_size = sizeof(Occurance)*sa_v.len*multiplier;
-    size_t larger = m_size-sizeof(Occurance)*sa_v.len;
-    printf("Testing success agains dummy hast table of size %lu_MB that is %lu_MB larger then data set", m_size/(1000*1000), larger/(1000*1000));
-
     OccuranceArr_view oa_v = occurance_arr_new(sa_v.len*multiplier);
 
     for (size_t i = 0; i < sa_v.len; i++) {
@@ -143,10 +139,6 @@ static void test_hash_collisions_sdbm_success(void)
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     size_t multiplier = 10*1000; 
-
-    size_t m_size = sizeof(Occurance)*sa_v.len*multiplier;
-    size_t larger = m_size-sizeof(Occurance)*sa_v.len;
-    printf("Testing success agains dummy hast table of size %lu_MB that is %lu_MB larger then data set", m_size/(1000*1000), larger/(1000*1000));
 
     OccuranceArr_view oa_v = occurance_arr_new(sa_v.len*multiplier);
 
@@ -171,10 +163,6 @@ static void test_hash_collisions_ll(void)
 
     size_t multiplier = 10*1000; 
 
-    size_t m_size = sizeof(Occurance)*sa_v.len*multiplier;
-    size_t larger = m_size-sizeof(Occurance)*sa_v.len;
-    printf("Testing failure agains dummy hast table of size %lu_MB that is %lu_MB larger then data set", m_size/(1000*1000), larger/(1000*1000));
-
     OccuranceArr_view oa_v = occurance_arr_new(sa_v.len*multiplier);
 
     for (size_t i = 0; i < sa_v.len; i++) {
@@ -196,7 +184,6 @@ static void bech_hash_collisions_djb2(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
-    printf("Testing hashing execution speed for [ %lu ] worlds running %zu times\n", sa_v.len, repetitons);
     
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -213,7 +200,7 @@ static void bech_hash_collisions_djb2(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashDJB2 callulating %zu hashes took %f_sec\n", counter, elapsed);
+    printf("HT_HashDJB2 callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
 }
@@ -222,7 +209,6 @@ static void bench_hash_collisions_sdbm(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
-    printf("Testing hashing execution speed for [ %lu ] worlds running %zu times\n", sa_v.len, repetitons);
     
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -239,7 +225,7 @@ static void bench_hash_collisions_sdbm(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashSDBM callulating %zu hashes took %f_sec\n", counter, elapsed);
+    printf("HT_HashSDBM callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
 }
@@ -248,7 +234,6 @@ static void bench_hash_collisions_ll(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
-    printf("Testing hashing execution speed for [ %lu ] worlds running %zu times\n", sa_v.len, repetitons);
     
     struct timeval begin, end;
     gettimeofday(&begin, 0);
@@ -265,7 +250,7 @@ static void bench_hash_collisions_ll(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashSDBM callulating %zu hashes took %f_sec\n", counter, elapsed);
+    printf("HT_HashSDBM callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
 }
@@ -391,7 +376,7 @@ static void bench_insert_all_hash_func(void) {
         long seconds = end.tv_sec - begin.tv_sec;
         long microseconds = end.tv_usec - begin.tv_usec;
         double elapsed = seconds + microseconds*1e-6;
-        printf("Inserting %lu entities with hash function %s took %f_sec\n", sa_v.len, names[n], elapsed);
+        printf("Inserting %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
 
         HT_free(ht);
         for (size_t i = 0; i < sa_v.len; i++) {
@@ -433,7 +418,7 @@ static void bench_read_all_hash_func(void) {
         long seconds = end.tv_sec - begin.tv_sec;
         long microseconds = end.tv_usec - begin.tv_usec;
         double elapsed = seconds + microseconds*1e-6;
-        printf("Reading %lu entities with hash function %s took %f_sec\n", sa_v.len, names[n], elapsed);
+        printf("Reading %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
 
         HT_free(ht);
         for (size_t i = 0; i < sa_v.len; i++) {
@@ -475,7 +460,7 @@ static void bench_delete_all_hash_func(void) {
         long seconds = end.tv_sec - begin.tv_sec;
         long microseconds = end.tv_usec - begin.tv_usec;
         double elapsed = seconds + microseconds*1e-6;
-        printf("Deleting %lu entities with hash function %s took %f_sec\n", sa_v.len, names[n], elapsed);
+        printf("Deleting %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
 
         HT_free(ht);
         for (size_t i = 0; i < sa_v.len; i++) {
