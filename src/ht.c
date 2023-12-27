@@ -34,32 +34,32 @@ HT_HashLL(unsigned char *str) {
     return hash;
 }
 
-static Entities *newEntity(char *key, void *value) {
-    Entity *en = malloc(sizeof(Entity*));
+static Entities *newEntity(unsigned char *key, void *value) {
+    Entity *en = malloc(sizeof(Entity));
     en->key = key;
     en->value = value;
 
-    Entities *ens = malloc(sizeof(Entities*));
+    Entities *ens = malloc(sizeof(Entities));
     ens->cap = 2;
-    ens->arr = calloc(ens->cap, sizeof(Entity**));
+    ens->arr = calloc(ens->cap, sizeof(Entity*));
     ens->arr[0] = en;
     ens->len = 1;
 
-    return  ens;
+    return ens;
 }
 
-static int appendEntity(Entities *ens, char *key, void *value) {
+static int appendEntity(Entities *ens, unsigned char *key, void *value) {
     for (size_t i = 0; i < ens->len; i++) {
-        if (strcmp(key, ens->arr[i]->key) == 0) {
+        if (strcmp((const char*)(key), (const char*)(ens->arr[i]->key)) == 0) {
             ens->arr[i]->value = value;
             return 0;
         }
     }
     if (ens->len == ens->cap) {
         ens->cap *= 2;
-        ens->arr = realloc(ens->arr, ens->cap*sizeof(Entity**));
+        ens->arr = realloc(ens->arr, ens->cap*sizeof(Entity*));
     }
-    Entity *en = malloc(sizeof(Entity*));
+    Entity *en = malloc(sizeof(Entity));
     en->key = key;
     en->value = value;
     
@@ -69,18 +69,18 @@ static int appendEntity(Entities *ens, char *key, void *value) {
     return 0;
 }
 
-static void *getEntityValue(Entities *ens, char *key) {
+static void *getEntityValue(Entities *ens, unsigned char *key) {
     for (size_t i = 0; i < ens->len; i++) {
-        if (strcmp(key, ens->arr[i]->key) == 0) {
+        if (strcmp((const char*)(key), (const char*)(ens->arr[i]->key)) == 0) {
             return ens->arr[i]->value;
         }
     }
     return NULL;
 }
 
-static void *deleteEntitytValue(Entities *ens, char *key) {
+static void *deleteEntitytValue(Entities *ens, unsigned char *key) {
     for (size_t i = 0; i < ens->len; i++) {
-        if (strcmp(key, ens->arr[i]->key) == 0) {
+        if (strcmp((const char*)(key), (const char*)(ens->arr[i]->key)) == 0) {
             void *value = ens->arr[i]->value;
             free(ens->arr[i]);
             ens->arr[i] = ens->arr[--ens->len];
@@ -102,19 +102,23 @@ static void freeEntities(Entities *ens) {
     return;
 }
 
-HT *HT_new(size_t cap, HT_HashFunction f) {
+HT HT_new(size_t cap, HT_HashFunction f) {
     if (cap < MinSize) {
         cap = MinSize;
     }
-    HT *ht = malloc(sizeof(HT*));
-    ht->hash_function = f;
-    ht->cap = cap;
-    ht->len = 0;
-    ht->table = calloc(cap, sizeof(Entities**));
+    if (cap > MaxSize) {
+        cap = MaxSize;
+    }
+    HT ht = {
+        .hash_function = f,
+        .cap = cap,
+        .len = 0,
+        .table = calloc(cap, sizeof(Entities**)),
+    };
     return ht;
 }
 
-int HT_insert(HT *ht, char *key, void *value) {
+int HT_insert(HT *ht, unsigned char *key, void *value) {
     if (!ht) {
         return HT_ErrDoNotExists;
     }
@@ -134,67 +138,56 @@ int HT_insert(HT *ht, char *key, void *value) {
     return 0;
 }
 
-int HT_read(HT *ht, char *key, void **value) {
+void *HT_read(HT *ht, unsigned char *key) {
     if (!ht) {
-        return HT_ErrDoNotExists;
-    }
-    if (value) { 
-        return HT_ErrNotEmptyValue;
+        return NULL;
     }
 
     unsigned long h = ht->hash_function(key);
     size_t idx = (size_t)(h)%ht->cap;
     Entities *ens = ht->table[idx];
     if (!ens) {
-        return HT_ErrCannotRead;
+        return NULL;
     }
 
     void *candidate = getEntityValue(ens, key);
     if (!candidate) {
-        return HT_ErrCannotRead;
+        return NULL;
     }
-
-    value = &candidate;
-
-    return 0;
+    return candidate;
 }
 
-int HT_delete(HT *ht, char *key, void **value) {
+void *HT_delete(HT *ht, unsigned char *key) {
     if (!ht) {
-        return HT_ErrDoNotExists;
-    }
-    if (value) { 
-        return HT_ErrNotEmptyValue;
+        return NULL;
     }
 
     unsigned long h = ht->hash_function(key);
     size_t idx = (size_t)(h)%ht->cap;
     Entities *ens = ht->table[idx];
     if (!ens) {
-        return HT_ErrCannotDelete;
+        return NULL;
     }
 
     void *candidate = deleteEntitytValue(ens, key);
     if (!candidate) {
-        return HT_ErrCannotDelete;
+        return NULL;
     }
     ht->len--;
-    value = &candidate;
 
-    return 0;
+    return candidate;
 }
 
-void HT_free(HT *ht) {
-    if (!ht) {
+void HT_free(HT ht) {
+    if (!ht.table) {
         return;
     }
-    for (size_t i = 0; i < ht->cap; i++) {
-        Entities *ens = ht->table[i];
+    for (size_t i = 0; i < ht.cap; i++) {
+        Entities *ens = ht.table[i];
         if (ens) {
             freeEntities(ens);
         }
     }
-    free(ht->table);
-    free(ht);
+    free(ht.table);
     return;
 }

@@ -4,14 +4,12 @@
 #include <stddef.h>
 
 #define MinSize 10000
+#define MaxSize 65535
 
 #define HT_ErrCannotInsert 1;
-#define HT_ErrCannotRead 2;
-#define HT_ErrDoNotExists 3;
-#define HT_ErrCannotDelete 4;
-#define HT_ErrNotEmptyValue 5;
+#define HT_ErrDoNotExists 2;
 
-typedef unsigned long (*HT_HashFunction)(char *);
+typedef unsigned long (*HT_HashFunction)(unsigned char *);
 
 /// HT_HashDJB2 hashes the nullable string.
 /// It uses djb2 hashing algorithm 
@@ -49,7 +47,7 @@ unsigned long
 HT_HashLL(unsigned char *str);
 
 typedef struct entity {
-    char *key;
+    unsigned char *key;
     void *value;
 } Entity;
 
@@ -75,7 +73,7 @@ typedef struct {
 ///
 /// cap - capacity of the hash table.
 /// f - hashing function pointer.
-HT *HT_new(size_t cap, HT_HashFunction f);
+HT HT_new(size_t cap, HT_HashFunction f);
 
 /// HT_insert inserts a value pointer with given key to the hash table.
 /// Value is updated if exists in the hash table.
@@ -84,33 +82,30 @@ HT *HT_new(size_t cap, HT_HashFunction f);
 /// ht - pointer to the hash table.
 /// key - char* nullable string that represents the key.
 /// value - a void pointer to the underlining entity.
-int HT_insert(HT *ht, char *key, void *value);
+int HT_insert(HT *ht, unsigned char *key, void *value);
 
 /// HT_read reads a value to a pointer with given key from the hash table if value exists.
-/// Returns 0 if update succeeded or error value otherwise.
+/// Returns pointer to the value or NULL otherwise;
 /// Caller responsibility is to properly cast the pointer to the expected type.
 /// Do not free the value memory until the entity is deleted from the hash table.
 ///
 /// ht - pointer to the hash table.
 /// key - char* nullable string that represents the key.
-/// value - a void pointer to a pointer value, will be updated with the pointer from the hash table.
-int HT_read(HT *ht, char *key, void **value);
+void *HT_read(HT *ht, unsigned char *key);
 
 
 /// HT_delete deletes a value from the hash table.
-/// Returns 0 if deleting succeeded or error value otherwise.
+/// Returns pointer to the value or NULL otherwise;
 /// Caller responsibility is to free the memory allocated for the value.
 ///
 /// ht - pointer to the hash table.
 /// key - char* nullable string that represents the key.
-/// value - a void pointer to a pointer value, that was deleted from the hash table,
-///         should be freed by the caller.
-int HT_delete(HT *ht, char *key, void **value);
+void *HT_delete(HT *ht, unsigned char *key);
 
 /// HT_free frees the memory allocated for the hash table.
 /// It is a caller responsibility to free underlining values.
 ///
 /// ht - pointer to the hash table.
-void HT_free(HT *ht);
+void HT_free(HT ht);
 
 #endif
