@@ -250,7 +250,7 @@ static void bench_hash_collisions_ll(void)
     long seconds = end.tv_sec - begin.tv_sec;
     long microseconds = end.tv_usec - begin.tv_usec;
     double elapsed = seconds + microseconds*1e-6;
-    printf("HT_HashSDBM callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
+    printf("HT_HashLL callulating %zu hashes took [ %f_sec ]\n", counter, elapsed);
 
     TEST_ASSERT_EQUAL(0, 0);
 }

@@ -86,7 +86,7 @@ int main(void) {
 
 - HT_HashDJB2 callulating 48000000 hashes took 1.182072_sec.
 - HT_HashSDBM callulating 48000000 hashes took 1.221105_sec.
-- HT_HashSDBM callulating 48000000 hashes took 1.087453_sec.
+- HT_HashLL callulating 48000000 hashes took 1.087453_sec.
 - Inserting 4800 entities with hash function dbj2 took 0.001356_sec.
 - Inserting 4800 entities with hash function sbdm took 0.001400_sec.
 - Inserting 4800 entities with hash function loss loss took 0.001657_sec.
