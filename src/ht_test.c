@@ -573,14 +573,14 @@ int main(void)
     RUN_TEST(test_insert_all_hash_func);
     RUN_TEST(test_read_all_hash_func);
     RUN_TEST(test_delete_all_hash_func);
+    RUN_TEST(test_iterator_all_hash_func);
     
     RUN_TEST(bench_insert_all_hash_func);
     RUN_TEST(bench_read_all_hash_func);
     RUN_TEST(bench_delete_all_hash_func);
-
-    RUN_TEST(test_iterator_all_hash_func);
-
     RUN_TEST(bench_iterator_all_hash_func);
+
+
     
     return UnityEnd();
 }
