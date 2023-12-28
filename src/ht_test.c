@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <sys/time.h>
 #include "../test-framework/unity.h"
 #include "ht.h"
@@ -273,7 +274,7 @@ static void test_insert_all_hash_func(void) {
             TEST_ASSERT_EQUAL(0, result);
         }
 
-        HT_free(ht);
+        HT_free(&ht);
         for (size_t i = 0; i < sa_v.len; i++) {
             free(arr[i]);
         }
@@ -305,7 +306,7 @@ static void test_read_all_hash_func(void) {
             TEST_ASSERT_EQUAL(i, *result);
         }
 
-        HT_free(ht);
+        HT_free(&ht);
         for (size_t i = 0; i < sa_v.len; i++) {
             free(arr[i]);
         }
@@ -342,7 +343,7 @@ static void test_delete_all_hash_func(void) {
             TEST_ASSERT_EQUAL(NULL, result);
         }
 
-        HT_free(ht);
+        HT_free(&ht);
         for (size_t i = 0; i < sa_v.len; i++) {
             free(arr[i]);
         }
@@ -378,7 +379,7 @@ static void bench_insert_all_hash_func(void) {
         double elapsed = seconds + microseconds*1e-6;
         printf("Inserting %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
 
-        HT_free(ht);
+        HT_free(&ht);
         for (size_t i = 0; i < sa_v.len; i++) {
             free(arr[i]);
         }
@@ -420,7 +421,7 @@ static void bench_read_all_hash_func(void) {
         double elapsed = seconds + microseconds*1e-6;
         printf("Reading %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
 
-        HT_free(ht);
+        HT_free(&ht);
         for (size_t i = 0; i < sa_v.len; i++) {
             free(arr[i]);
         }
@@ -462,14 +463,100 @@ static void bench_delete_all_hash_func(void) {
         double elapsed = seconds + microseconds*1e-6;
         printf("Deleting %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
 
-        HT_free(ht);
+        HT_free(&ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr); 
+    }
+}
+
+static void test_iterator_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+
+    for (size_t n = 0; n < 3; n++) {
+
+        HT ht = HT_new(100*1000, hash_functions[n]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+
+        size_t counter = 0;
+        Iterator it = HT_newIterator();
+        while (true) {
+            Entity *en = HT_next(&ht, &it);
+            if (!en) {
+                break;
+            }
+            size_t *value = (size_t*)(en->value);
+            TEST_ASSERT_NOT_EQUAL(NULL, value);
+            counter++;
+        }
+        TEST_ASSERT_EQUAL(sa_v.len, counter);
+
+        HT_free(&ht);
         for (size_t i = 0; i < sa_v.len; i++) {
             free(arr[i]);
         }
         free(arr);
-        
     }
 }
+
+static void bench_iterator_all_hash_func(void) {
+    StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
+
+    HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
+    char names[3][10] = {"dbj2", "sbdm", "loss loss"};
+
+    for (size_t n = 0; n < 3; n++) {
+        HT ht = HT_new(100*1000, hash_functions[n]);
+
+        size_t **arr = calloc(sa_v.len, sizeof(int*));
+
+        for (size_t i = 0; i < sa_v.len; i++) {
+            size_t *v = malloc(sizeof(size_t));
+            memcpy(v, &i, sizeof(size_t));
+            arr[i] = v;
+            int result = HT_insert(&ht, (unsigned char*)sa_v.arr[i], (void*)arr[i]);
+            TEST_ASSERT_EQUAL(0, result);
+        }
+
+        struct timeval begin, end;
+        gettimeofday(&begin, 0);
+
+        Iterator it = HT_newIterator();
+        while (true) {
+            Entity *en = HT_next(&ht, &it);
+            if (!en) {
+                break;
+            }
+            size_t *value = (size_t*)(en->value);
+            TEST_ASSERT_NOT_EQUAL(NULL, value);
+        }
+        
+        gettimeofday(&end, 0);
+        long seconds = end.tv_sec - begin.tv_sec;
+        long microseconds = end.tv_usec - begin.tv_usec;
+        double elapsed = seconds + microseconds*1e-6;
+        printf("Iterating over %lu entities with hash function <%s> took [ %f_sec ]\n", sa_v.len, names[n], elapsed);
+
+        HT_free(&ht);
+        for (size_t i = 0; i < sa_v.len; i++) {
+            free(arr[i]);
+        }
+        free(arr); 
+    }
+}
+
 
 int main(void)
 {
@@ -491,5 +578,9 @@ int main(void)
     RUN_TEST(bench_read_all_hash_func);
     RUN_TEST(bench_delete_all_hash_func);
 
+    RUN_TEST(test_iterator_all_hash_func);
+
+    RUN_TEST(bench_iterator_all_hash_func);
+    
     return UnityEnd();
 }
