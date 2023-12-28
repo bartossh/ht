@@ -15,12 +15,13 @@ To test with memcheck run `make memcheck`.
 
 ## Usage Examples
 
-Below example consists if five stages.
+Below example consists if six stages.
 
 - Creation of the hash table with function `HT HT_new(size_t cap, HT_HashFunction f);`.
 - Insertion to the hash table with function `int HT_insert(HT *ht, unsigned char *key, void *value);`.
 - Reading from the hash table with function `void *HT_read(HT *ht, unsigned char *key);`.
 - Deleting from the hash table with function `void *HT_delete(HT *ht, unsigned char *key);`.
+- Iteration of the hash table with function `HT HT_next(HT *ht, Iterator *it);`.
 - Freeing the memory after hash table is not needed anymore with function `void HT_free(HT ht);`.
 
 
@@ -72,6 +73,18 @@ int main(void) {
         printf("deleted value [ %lu ]\n", v);
         free(value); // Caller responsibility is to free value after deletion and usage.
     }
+    
+
+    // Iterating example:
+    Iterator it = HT_newIterator();
+    while (true) {
+        Entity *en = HT_next(&ht, &it);
+        if (!en) {
+            break;
+        }
+        size_t *value = (size_t*)(en->value);
+        printf("next value [ %lu ]\n", *value);
+    }
 
     // Free Memory used by a Hash Table example:
     HT_free(ht); 
@@ -96,4 +109,7 @@ int main(void) {
 - Deleting 4800 entities with hash function dbj2 took 0.000460_sec.
 - Deleting 4800 entities with hash function sbdm took 0.000496_sec.
 - Deleting 4800 entities with hash function loss loss took 0.000945_sec.
+- Iterating over 4800 entities with hash function dbj2 took 0.000314_sec.
+- Iterating over 4800 entities with hash function sbdm took 0.000319_sec.
+- Iterating over 4800 entities with hash function loss loss took 0.000297_sec.
 

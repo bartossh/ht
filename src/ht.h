@@ -46,6 +46,14 @@ HT_HashSDBM(unsigned char *str);
 unsigned long
 HT_HashLL(unsigned char *str);
 
+/// Iterator keeps track of the hash map iteration.
+typedef struct iterator {
+    size_t hash_table_idx;
+    size_t arr_idx;
+} Iterator;
+
+
+/// Entity contains of a key and value of the thing stored in a hash map.
 typedef struct entity {
     unsigned char *key;
     void *value;
@@ -102,10 +110,20 @@ void *HT_read(HT *ht, unsigned char *key);
 /// key - char* nullable string that represents the key.
 void *HT_delete(HT *ht, unsigned char *key);
 
+/// HT_newIterator creates new iterator.
+Iterator HT_newIterator(void);
+
+/// HT_next allows to iterate over key values pairs.
+/// Returns pointer to the next Entity of key value pair or NULL if iterator is exhausted.
+///
+/// ht - pointer to the hash table.
+/// it - pointer to new iterator.
+Entity *HT_next(HT *ht, Iterator *it);
+
 /// HT_free frees the memory allocated for the hash table.
 /// It is a caller responsibility to free underlining values.
 ///
 /// ht - pointer to the hash table.
-void HT_free(HT ht);
+void HT_free(HT *ht);
 
 #endif

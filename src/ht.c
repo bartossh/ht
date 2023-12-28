@@ -178,16 +178,57 @@ void *HT_delete(HT *ht, unsigned char *key) {
     return candidate;
 }
 
-void HT_free(HT ht) {
-    if (!ht.table) {
+Iterator HT_newIterator(void) {
+    Iterator it = {
+        .hash_table_idx = 0,
+        .arr_idx = 0
+    };
+    return it;
+}
+
+Entity *HT_next(HT *ht, Iterator *it) {
+    if (!ht || !it) {
+        return NULL;
+    }
+    size_t i = it->hash_table_idx;
+    size_t j = it->arr_idx;
+    for (; i < ht->cap; i++) {
+        Entities *ens = ht->table[i];
+        if (!ens) {
+            j = 0;
+            continue;
+        }
+        if (j >= ens->len) {
+            j = 0;
+            continue;
+        }
+        Entity *en = ens->arr[j];
+        it->hash_table_idx = i;
+        it->arr_idx = j+1;
+        return en;
+    }
+
+    it->hash_table_idx = ht->cap;
+    it->arr_idx = 0;
+    return NULL;
+}
+
+void HT_free(HT *ht) {
+    if (!ht) {
         return;
     }
-    for (size_t i = 0; i < ht.cap; i++) {
-        Entities *ens = ht.table[i];
+    if (!ht->table) {
+        return;
+    }
+    for (size_t i = 0; i < ht->cap; i++) {
+        Entities *ens = ht->table[i];
         if (ens) {
             freeEntities(ens);
         }
     }
-    free(ht.table);
+    free(ht->table);
+    ht->cap = 0;
+    ht->len = 0;
+    ht->table = NULL;
     return;
 }
