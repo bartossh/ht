@@ -97,9 +97,9 @@ int main(void) {
 
 ## Benchmarks
 
-Chip: Apple M2
-Memory: 24 GB
-System Firmware Version: 10151.61.4
+- Chip: Apple M2
+- Memory: 24 GB
+- System Firmware Version: 10151.61.4
 
 - HT_HashDJB2 callulating 48000000 hashes took 1.182072_sec.
 - HT_HashSDBM callulating 48000000 hashes took 1.221105_sec.

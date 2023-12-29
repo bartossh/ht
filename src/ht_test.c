@@ -112,7 +112,7 @@ void tearDown(void)
 {
 }
 
-static void test_hash_collisions_djb2_success(void)
+static void testHashCollisionsDjb2Success(void)
 {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
@@ -135,7 +135,7 @@ static void test_hash_collisions_djb2_success(void)
     TEST_ASSERT_EQUAL(all, distinct);
 }
 
-static void test_hash_collisions_sdbm_success(void)
+static void testHashCollisionsSdbmSuccess(void)
 {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
@@ -158,7 +158,7 @@ static void test_hash_collisions_sdbm_success(void)
     TEST_ASSERT_EQUAL(all, distinct);
 }
 
-static void test_hash_collisions_ll(void)
+static void testHashCollisionsLL(void)
 {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
@@ -181,7 +181,7 @@ static void test_hash_collisions_ll(void)
     TEST_ASSERT_NOT_EQUAL(all, distinct);
 }
 
-static void bech_hash_collisions_djb2(void)
+static void bechHashCollisionsDjb2(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
@@ -206,7 +206,7 @@ static void bech_hash_collisions_djb2(void)
     TEST_ASSERT_EQUAL(0, 0);
 }
 
-static void bench_hash_collisions_sdbm(void)
+static void benchHashCollisionsSdbm(void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
@@ -231,7 +231,7 @@ static void bench_hash_collisions_sdbm(void)
     TEST_ASSERT_EQUAL(0, 0);
 }
 
-static void bench_hash_collisions_ll(void)
+static void benchHashCollisionsLL (void)
 {
     const size_t repetitons = 10000;
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
@@ -256,7 +256,7 @@ static void bench_hash_collisions_ll(void)
     TEST_ASSERT_EQUAL(0, 0);
 }
 
-static void test_insert_all_hash_func(void) {
+static void testInsertAllHashFunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -282,7 +282,7 @@ static void test_insert_all_hash_func(void) {
     }
 }
 
-static void test_read_all_hash_func(void) {
+static void testReadAllHashFunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -314,7 +314,7 @@ static void test_read_all_hash_func(void) {
     }
 }
 
-static void test_delete_all_hash_func(void) {
+static void testDeleteAllHashfunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -351,7 +351,7 @@ static void test_delete_all_hash_func(void) {
     }
 }
 
-static void bench_insert_all_hash_func(void) {
+static void benchInsertAllHashFunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -387,7 +387,7 @@ static void bench_insert_all_hash_func(void) {
     }
 }
 
-static void bench_read_all_hash_func(void) {
+static void benchReadAllHashFunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -429,7 +429,7 @@ static void bench_read_all_hash_func(void) {
     }
 }
 
-static void bench_delete_all_hash_func(void) {
+static void benchDeleteAllHashFunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -471,7 +471,7 @@ static void bench_delete_all_hash_func(void) {
     }
 }
 
-static void test_iterator_all_hash_func(void) {
+static void testIteratorAllhashfunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -511,7 +511,7 @@ static void test_iterator_all_hash_func(void) {
     }
 }
 
-static void bench_iterator_all_hash_func(void) {
+static void benchIteratorAllHashFunc(void) {
     StrArr_view sa_v = read("./test-data/probable-v2-wpa-top4800.txt");
 
     HT_HashFunction hash_functions[3] = {HT_HashDJB2, HT_HashSDBM, HT_HashLL};
@@ -562,23 +562,23 @@ int main(void)
 {
     UnityBegin("ht_test.c");
 
-    RUN_TEST(test_hash_collisions_djb2_success);
-    RUN_TEST(test_hash_collisions_sdbm_success);
-    RUN_TEST(test_hash_collisions_ll);
+    RUN_TEST(testHashCollisionsDjb2Success);
+    RUN_TEST(testHashCollisionsSdbmSuccess);
+    RUN_TEST(testHashCollisionsLL);
     
-    RUN_TEST(bech_hash_collisions_djb2);
-    RUN_TEST(bench_hash_collisions_sdbm);
-    RUN_TEST(bench_hash_collisions_ll);
+    RUN_TEST(bechHashCollisionsDjb2);
+    RUN_TEST(benchHashCollisionsSdbm);
+    RUN_TEST(benchHashCollisionsLL );
 
-    RUN_TEST(test_insert_all_hash_func);
-    RUN_TEST(test_read_all_hash_func);
-    RUN_TEST(test_delete_all_hash_func);
-    RUN_TEST(test_iterator_all_hash_func);
+    RUN_TEST(testInsertAllHashFunc);
+    RUN_TEST(testReadAllHashFunc);
+    RUN_TEST(testDeleteAllHashfunc);
+    RUN_TEST(testIteratorAllhashfunc);
     
-    RUN_TEST(bench_insert_all_hash_func);
-    RUN_TEST(bench_read_all_hash_func);
-    RUN_TEST(bench_delete_all_hash_func);
-    RUN_TEST(bench_iterator_all_hash_func);
+    RUN_TEST(benchInsertAllHashFunc);
+    RUN_TEST(benchReadAllHashFunc);
+    RUN_TEST(benchDeleteAllHashFunc);
+    RUN_TEST(benchIteratorAllHashFunc);
 
 
     
