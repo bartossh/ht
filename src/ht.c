@@ -3,7 +3,7 @@
 #include <string.h>
 
 unsigned long
-HT_HashDJB2(unsigned char *str) {
+ht_HashDJB2(unsigned char *str) {
     unsigned long hash = 5381;
     int c;
     while ((c = *str++))
@@ -13,7 +13,7 @@ HT_HashDJB2(unsigned char *str) {
 }
 
 unsigned long
-HT_HashSDBM(unsigned char *str) {
+ht_HashSDBM(unsigned char *str) {
     unsigned long hash = 0;
     int c;
 
@@ -24,7 +24,7 @@ HT_HashSDBM(unsigned char *str) {
 }
 
 unsigned long
-HT_HashLL(unsigned char *str) {
+ht_HashLL(unsigned char *str) {
     unsigned int hash = 0;
     int c;
 
@@ -102,7 +102,7 @@ static void freeEntities(Entities *ens) {
     return;
 }
 
-HT HT_new(size_t cap, HT_HashFunction f) {
+HT ht_new(size_t cap, ht_HashFunction f) {
     if (cap < MinSize) {
         cap = MinSize;
     }
@@ -118,9 +118,9 @@ HT HT_new(size_t cap, HT_HashFunction f) {
     return ht;
 }
 
-int HT_insert(HT *ht, unsigned char *key, void *value) {
+int ht_insert(HT *ht, unsigned char *key, void *value) {
     if (!ht) {
-        return HT_ErrDoNotExists;
+        return ht_ErrDoNotExists;
     }
     unsigned long h = ht->hash_function(key);
     size_t idx = (size_t)(h)%ht->cap;
@@ -138,7 +138,7 @@ int HT_insert(HT *ht, unsigned char *key, void *value) {
     return 0;
 }
 
-void *HT_read(HT *ht, unsigned char *key) {
+void *ht_read(HT *ht, unsigned char *key) {
     if (!ht) {
         return NULL;
     }
@@ -157,7 +157,7 @@ void *HT_read(HT *ht, unsigned char *key) {
     return candidate;
 }
 
-void *HT_delete(HT *ht, unsigned char *key) {
+void *ht_delete(HT *ht, unsigned char *key) {
     if (!ht) {
         return NULL;
     }
@@ -178,7 +178,7 @@ void *HT_delete(HT *ht, unsigned char *key) {
     return candidate;
 }
 
-Iterator HT_newIterator(void) {
+Iterator ht_newIterator(void) {
     Iterator it = {
         .hash_table_idx = 0,
         .arr_idx = 0
@@ -186,7 +186,7 @@ Iterator HT_newIterator(void) {
     return it;
 }
 
-Entity *HT_next(HT *ht, Iterator *it) {
+Entity *ht_next(HT *ht, Iterator *it) {
     if (!ht || !it) {
         return NULL;
     }
@@ -213,7 +213,7 @@ Entity *HT_next(HT *ht, Iterator *it) {
     return NULL;
 }
 
-void HT_free(HT *ht) {
+void ht_free(HT *ht) {
     if (!ht) {
         return;
     }
