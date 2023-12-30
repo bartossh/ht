@@ -15,14 +15,14 @@ To test with memcheck run `make memcheck`.
 
 ## Usage Examples
 
-Below example consists if six stages.
+Below example consists:
 
-- Creation of the hash table with function `HT HT_new(size_t cap, HT_HashFunction f);`.
-- Insertion to the hash table with function `int HT_insert(HT *ht, unsigned char *key, void *value);`.
-- Reading from the hash table with function `void *HT_read(HT *ht, unsigned char *key);`.
-- Deleting from the hash table with function `void *HT_delete(HT *ht, unsigned char *key);`.
-- Iteration of the hash table with function `HT HT_next(HT *ht, Iterator *it);`.
-- Freeing the memory after hash table is not needed anymore with function `void HT_free(HT ht);`.
+- Creation of the hash table with function `HT ht_new(size_t cap, ht_HashFunction f);`.
+- Insertion to the hash table with function `int ht_insert(HT *ht, unsigned char *key, void *value);`.
+- Reading from the hash table with function `void *ht_read(HT *ht, unsigned char *key);`.
+- Deleting from the hash table with function `void *ht_delete(HT *ht, unsigned char *key);`.
+- Iteration of the hash table with function `HT ht_next(HT *ht, Iterator *it);`.
+- Freeing the memory after hash table is not needed anymore with function `void ht_free(HT ht);`.
 
 
 ```c
@@ -33,7 +33,7 @@ Below example consists if six stages.
 
 int main(void) {
     // Create Hash Table example:
-    HT ht = HT_new(HashTableSize, HT_HashDJB2);
+    HT ht = ht_new(HashTableSize, ht_HashDJB2);
 
     char keys[3][4] = {"1234", "next", "last"};
    
@@ -44,7 +44,7 @@ int main(void) {
         memcpy(v, &i, sizeof(size_t));
         // till here.
         
-        int result = HT_insert(&ht, (unsigned char*)keys[i], (void*)v);
+        int result = ht_insert(&ht, (unsigned char*)keys[i], (void*)v);
         if (result != 0) {
             printf("insertion failed\n");
             return result;
@@ -53,7 +53,7 @@ int main(void) {
 
     // Reading example:
     for (size_t i = 1; i < 3; i++) { 
-        coid *value = HT_read(&ht, (unsigned char*)keys[i];
+        coid *value = ht_read(&ht, (unsigned char*)keys[i];
         if (!value) {
             printf("reading failed\n");
             return 1;
@@ -64,7 +64,7 @@ int main(void) {
     
     // Deleting example:
     for (size_t i = 1; i < 3; i++) { 
-        coid *value = HT_delte(&ht, (unsigned char*)keys[i];
+        coid *value = ht_delte(&ht, (unsigned char*)keys[i];
         if (!value) {
             printf("deleting failed\n");
             return 1;
@@ -76,9 +76,9 @@ int main(void) {
     
 
     // Iterating example:
-    Iterator it = HT_newIterator();
+    Iterator it = ht_newIterator();
     while (true) {
-        Entity *en = HT_next(&ht, &it);
+        Entity *en = ht_next(&ht, &it);
         if (!en) {
             break;
         }
@@ -87,7 +87,7 @@ int main(void) {
     }
 
     // Free Memory used by a Hash Table example:
-    HT_free(ht); 
+    ht_free(ht); 
 
     return 0;
 
@@ -105,9 +105,9 @@ int main(void) {
 
 ### Results
 
-- HT_HashDJB2 calculating 48000000 hashes took 1.182072_sec.
-- HT_HashSDBM calculating 48000000 hashes took 1.221105_sec.
-- HT_HashLL calculating 48000000 hashes took 1.087453_sec.
+- ht_HashDJB2 calculating 48000000 hashes took 1.182072_sec.
+- ht_HashSDBM calculating 48000000 hashes took 1.221105_sec.
+- ht_HashLL calculating 48000000 hashes took 1.087453_sec.
 - Inserting 4800 entities with hash function dbj2 took 0.001356_sec.
 - Inserting 4800 entities with hash function sbdm took 0.001400_sec.
 - Inserting 4800 entities with hash function loss loss took 0.001657_sec.
